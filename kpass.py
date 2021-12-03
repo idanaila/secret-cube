@@ -16,13 +16,14 @@ def logo():
 
 def main():
 
-    # ask for the password lenght, purpose and clear the terminal
-
+    # ask for the username, password lenght, purpose and clear the terminal
+    def username():
+        return input("Username: ")
     def num():
         return int(input("Password length: "))
     def purpose():
         print("")
-        return input("Password purpose(e.g. google, twitter, etc):")
+        return input("Password purpose(e.g. google, twitter, etc): ")
     def clear():
         if os.name == 'posix':
             _ = os.system('clear')
@@ -42,8 +43,9 @@ def main():
         
         # add the details to a dictonary
 
-        db['user'] = getpass.getuser()
+        db['os_user'] = getpass.getuser()
         db['purpose'] = purpose()
+        db['username'] = username()
         listToStr = ''.join(str(x) for x in b)
         db['password'] = listToStr
         #hpass = sha256_crypt.hash(c)
@@ -64,7 +66,7 @@ def password():
 
     # check if a password is set upon start of the program
 
-    if os.path.isfile('./hashes') == False:
+    if os.path.isfile('./.hashes') == False:
         if os.geteuid() != 0:
             exit("First time running. Please use sudo kpass.py -p <password>")
         #if os.geteuid == 0:
@@ -73,7 +75,7 @@ def password():
     # check the password set via the hash stored
 
     master_pass = input("Enter password: ")
-    f = open("hashes", "r")
+    f = open(".hashes", "r")
     if sha256_crypt.verify(master_pass, f.read()) is True:
         main()
     else:
@@ -100,7 +102,7 @@ def help_menu():
         if opt in ['-p']:
             gen_hash = arg
             hash_pass = sha256_crypt.hash(gen_hash)
-            f = open("hashes", "w")
+            f = open(".hashes", "w")
             f.write(hash_pass)
             f.close
             with open(".hpass", "w") as fp:
@@ -108,8 +110,11 @@ def help_menu():
             uid = 0
             gid = 0
             path = "./.hpass"
+            path1 = "./.hashes"
             os.chown(path, uid, gid)
             os.chmod(path, 0o772)
+            os.chown(path1, uid, gid)
+            os.chmod(path1, 0o772)
             #f.close()
             print("Password set. Run again the program with: python3 kpass.py")
             exit(1)
